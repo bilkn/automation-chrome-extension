@@ -73,7 +73,7 @@ export default function App() {
           >
             <CursorIcon />
             <p className="text-[#0e1726] text-center text-lg font-semibold">
-              Click all the elements
+              Click all the selected elements
             </p>
           </button>
         </div>
