@@ -1,7 +1,7 @@
 {
-  "name": "chrome-extension-boilerplate-react-vite",
+  "name": "browser-buddy-challenge",
   "version": "0.0.1",
-  "description": "chrome extension boilerplate",
+  "description": "May be force be with you.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -20,16 +20,18 @@
   },
   "type": "module",
   "dependencies": {
+    "@types/lodash": "^4.14.199",
     "construct-style-sheets-polyfill": "^3.1.0",
+    "lodash": "^4.17.21",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^8.5.0",
+    "@testing-library/react": "13.4.0",
     "@twind/core": "^1.1.3",
     "@twind/preset-autoprefix": "^1.0.7",
     "@twind/preset-tailwind": "^1.1.4",
-    "@rollup/plugin-typescript": "^8.5.0",
-    "@testing-library/react": "13.4.0",
     "@types/chrome": "0.0.224",
     "@types/jest": "29.0.3",
     "@types/node": "18.15.11",

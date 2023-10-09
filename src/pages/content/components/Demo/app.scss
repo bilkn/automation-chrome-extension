@@ -1,7 +1,3 @@
-.crx-class {
-  color: pink;
-}
-
 .predicted-element {
   outline: thick solid #ea945c !important;
   outline-offset: -3px !important;
@@ -10,4 +6,8 @@
 .hovered-element {
   outline: thick solid #0000ff !important;
   outline-offset: -3px !important;
+}
+
+.my-title {
+  font-size: 5rem;
 }
