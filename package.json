@@ -22,6 +22,7 @@
   "dependencies": {
     "@types/lodash": "^4.14.199",
     "construct-style-sheets-polyfill": "^3.1.0",
+    "css.escape": "^1.5.1",
     "lodash": "^4.17.21",
     "react": "18.2.0",
     "react-dom": "18.2.0"

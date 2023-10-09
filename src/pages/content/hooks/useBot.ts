@@ -1,35 +1,10 @@
 import _ from "lodash";
 import React from "react";
+import templator from "../helpers/templator";
 
 function useBot() {
   const lastHoveredElement = React.useRef(null);
-
-  const createSelectorTemplate = React.useCallback((node, count) => {
-    let currentNode = node;
-    const parentSelectors = [];
-    for (let i = 0; i < count; i++) {
-      if (!currentNode) break;
-      parentSelectors.push({
-        className: Array.from(currentNode.classList).join("."),
-        tagName: currentNode.tagName,
-      });
-      currentNode = currentNode.parentElement;
-    }
-    return parentSelectors;
-  }, []);
-
-  const createSelectorFromTemplate = React.useCallback((template) => {
-    return template.reverse().reduce((selector, cur) => {
-      let str = "";
-      const { tagName, className } = cur;
-      str += tagName.toLowerCase();
-      if (className) {
-        str += `.${className}`;
-      }
-      selector += str + " ";
-      return selector;
-    }, "");
-  }, []);
+  const [selectedElements, setSelectedElements] = React.useState(null);
 
   React.useEffect(() => {
     console.log("USE EFFECT");
@@ -51,9 +26,9 @@ function useBot() {
       const lastElementCurrent = lastHoveredElement.current;
       e.stopPropagation();
 
-      const selectors = createSelectorTemplate(e.target, 5);
+      const selectors = templator.createSelectorTemplate(e.target, 5);
       console.log({ selectors });
-      const selector = createSelectorFromTemplate(selectors);
+      const selector = templator.createSelectorFromTemplate(selectors);
       console.log({ selector });
       addClassBySelector(selector);
 
@@ -74,8 +49,8 @@ function useBot() {
       throttledMouseMoveHandler
     );
     return () => removeEventListener("mousemove", listener as any);
-  }, [createSelectorFromTemplate, createSelectorTemplate]);
-  return null;
+  }, []);
+  return { selectedElements };
 }
 
 export default useBot;

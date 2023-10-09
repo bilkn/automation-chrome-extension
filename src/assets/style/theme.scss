@@ -11,3 +11,9 @@
   outline: thick solid #0000ff !important;
   outline-offset: -3px !important;
 }
+
+.bot-container {
+  bottom: 0;
+  left: 0;
+  transform: translateX(-50%);
+}
