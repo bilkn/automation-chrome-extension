@@ -4,14 +4,7 @@ import { Button, IconButton } from "../components";
 import { CursorIcon } from "../components/Icons";
 
 export default function App() {
-  const {
-    handlers,
-    isEditModeOpen,
-    userSelectedElements,
-    allSelectedElements,
-    predictedElementCount,
-    step,
-  } = useBot();
+  const { handlers, userSelectedElements, step } = useBot();
 
   const [showBotUI, setShowBotUI] = React.useState(true);
 
@@ -19,6 +12,11 @@ export default function App() {
 
   if (!showBotUI) return null;
   const atLeastTwoElementsIsSelected = userSelectedElements.length >= 2;
+
+  React.useEffect(() => {
+    window.addEventListener("locationchange", handlers.onReset);
+    return () => window.removeEventListener("locationchange", handlers.onReset);
+  }, []);
 
   const STEP1 = () => {
     return (
@@ -31,9 +29,7 @@ export default function App() {
             <div className="mt-10">
               {atLeastTwoElementsIsSelected ? (
                 <p className="text-gray-900 font-medium">
-                  Great! You selected {userSelectedElements.length} elements, we
-                  predicted {predictedElementCount} additional element. In total{" "}
-                  {allSelectedElements.length} elements are selected.
+                  Great! You selected {userSelectedElements.length} elements,
                 </p>
               ) : (
                 <p className="text-gray-900 font-medium">Select two element</p>
@@ -48,11 +44,6 @@ export default function App() {
               <Button onClick={handlers.onReset} variant="secondary">
                 Reset
               </Button>
-              {/*    {atLeastTwoElementsIsSelected && (
-                <button onClick={handlers.run} className="p-4 bg-black">
-                  Run bot
-                </button>
-              )} */}
               <Button
                 onClick={handlers.onSave}
                 disabled={!atLeastTwoElementsIsSelected}
@@ -76,14 +67,15 @@ export default function App() {
           <h1 className="text-gray-900 text-2xl font-bold leading-[33.60px]">
             Step 2. Choose an action on each element
           </h1>
-          <div>
-            <button>
-              <p className="text-[#0e1726] text-center text-lg font-semibold">
-                Click all the elements
-              </p>
-              <CursorIcon />
-            </button>
-          </div>
+          <button
+            onClick={handlers.onClickAllElements}
+            className="flex items-center justify-center p-8 bg-gray-200 rounded-md mt-4"
+          >
+            <CursorIcon />
+            <p className="text-[#0e1726] text-center text-lg font-semibold">
+              Click all the elements
+            </p>
+          </button>
         </div>
       </div>
     );

@@ -11,21 +11,18 @@ function useBot() {
   const lastHoveredElement = React.useRef(null);
   const isElementSelected = React.useRef(null);
   const [userSelectedElements, setUserSelectedElements] = React.useState([]);
-  const [allSelectedElements, setAllSelectedElements] = React.useState([]);
   const [isEditModeOpen, setIsEditModeOpen] = React.useState(true);
   const [step, setStep] = React.useState(defaultStep);
 
   const resetStep = () => setStep(defaultStep);
 
-  // TODO: Handle when the route changes
-
   const getAllPredictedElements = React.useCallback(
-    () => Array.from(document.querySelectorAll(".predicted-element")),
+    () => Array.from(document.querySelectorAll(".predicted-element") || []),
     [userSelectedElements]
   );
 
   const predictedElementCount = React.useMemo(
-    () => getAllPredictedElements().length - userSelectedElements.length,
+    () => getAllPredictedElements().length,
     [userSelectedElements, getAllPredictedElements]
   );
 
@@ -54,7 +51,6 @@ function useBot() {
         return;
       e.target.classList.add(BOT_KEYS.SELECTED_ELEMENT);
       setUserSelectedElements((prevElements) => [...prevElements, e.target]);
-      setAllSelectedElements((prevElements) => [...prevElements, e.target]);
     },
     [isEditModeOpen]
   );
@@ -145,7 +141,13 @@ function useBot() {
     resetStep();
   };
 
-  const run = () => {
+  const onSave = () => {
+    setStep(2);
+  };
+
+  const toggleEditMode = () => setIsEditModeOpen(!isEditModeOpen);
+
+  const onClickAllElements = () => {
     userSelectedElements.forEach((elt: HTMLElement) => {
       elt.setAttribute(BOT_KEYS.BOT_TARGET, "true");
       elt.click();
@@ -153,23 +155,14 @@ function useBot() {
     onReset();
   };
 
-  const onSave = () => {
-    const predictedElements = getAllPredictedElements();
-    setAllSelectedElements(predictedElements);
-    setStep(2);
-  };
-
-  const toggleEditMode = () => setIsEditModeOpen(!isEditModeOpen);
-
   const handlers = {
     onReset,
-    run,
     toggleEditMode,
     onSave,
+    onClickAllElements,
   };
 
   return {
-    allSelectedElements,
     userSelectedElements,
     handlers,
     isEditModeOpen,
