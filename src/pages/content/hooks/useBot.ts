@@ -5,27 +5,34 @@ import classHelpers from "../helpers/classHelpers";
 import { findCommonAncestor } from "../helpers";
 import { BOT_KEYS } from "../constants";
 
+const defaultStep = 1;
+
 function useBot() {
   const lastHoveredElement = React.useRef(null);
   const isElementSelected = React.useRef(null);
   const [userSelectedElements, setUserSelectedElements] = React.useState([]);
   const [allSelectedElements, setAllSelectedElements] = React.useState([]);
   const [isEditModeOpen, setIsEditModeOpen] = React.useState(true);
+  const [step, setStep] = React.useState(defaultStep);
 
-  const getPredictedElements = React.useCallback(
-    () => document.querySelectorAll(".predicted-element"),
+  const resetStep = () => setStep(defaultStep);
+
+  // TODO: Handle when the route changes
+
+  const getAllPredictedElements = React.useCallback(
+    () => Array.from(document.querySelectorAll(".predicted-element")),
     [userSelectedElements]
   );
 
   const predictedElementCount = React.useMemo(
-    () => getPredictedElements().length,
-    [userSelectedElements, getPredictedElements]
+    () => getAllPredictedElements().length - userSelectedElements.length,
+    [userSelectedElements, getAllPredictedElements]
   );
-  // TODO: Handle when the route changes
 
   const handleDocumentClickEvent = React.useCallback(
     (e) => {
       const rootContainer = document.getElementById("browser-buddy-root");
+
       if (!isEditModeOpen) {
         return;
       } else if (
@@ -36,7 +43,15 @@ function useBot() {
       isElementSelected.current = true;
       e.stopPropagation();
       e.preventDefault();
-      if (!e.target.classList.contains(BOT_KEYS.PREDICTED_ELEMENT)) return;
+      const isElementAlreadySelected = e.target.classList.contains(
+        BOT_KEYS.SELECTED_ELEMENT
+      );
+
+      if (
+        !e.target.classList.contains(BOT_KEYS.PREDICTED_ELEMENT) ||
+        isElementAlreadySelected
+      )
+        return;
       e.target.classList.add(BOT_KEYS.SELECTED_ELEMENT);
       setUserSelectedElements((prevElements) => [...prevElements, e.target]);
       setAllSelectedElements((prevElements) => [...prevElements, e.target]);
@@ -46,6 +61,7 @@ function useBot() {
 
   React.useEffect(() => {
     const isBothElementsSelected = userSelectedElements.length >= 2;
+    let commonAncestor;
     const outlinePredictedElements = (clickedElt) => {
       const selectorTemplate = templator.createSelectorTemplateUntilParentNode(
         clickedElt,
@@ -56,17 +72,19 @@ function useBot() {
       classHelpers.addClassBySelector(selector, BOT_KEYS.PREDICTED_ELEMENT);
     };
 
-    let commonAncestor;
     // Finds common ancestor and removes other predicted elements other than ancestor's children
     if (isBothElementsSelected) {
       const [elt1, elt2] = userSelectedElements;
       commonAncestor = findCommonAncestor(elt1, elt2);
       commonAncestor.classList.add(BOT_KEYS.COMMON_ANCESTOR);
-      const predictedElements = document.querySelectorAll(".predicted-element");
+      const predictedElements = document.querySelectorAll(
+        "." + BOT_KEYS.PREDICTED_ELEMENT
+      );
       if (!predictedElements.length) return;
       predictedElements.forEach((elt) =>
         elt.classList.remove(BOT_KEYS.PREDICTED_ELEMENT)
       );
+
       outlinePredictedElements(elt2);
     }
 
@@ -92,7 +110,7 @@ function useBot() {
 
       if (lastElementCurrent && !e.target.isSameNode(lastElementCurrent)) {
         classHelpers.removeClassBySelector(
-          ".predicted-element",
+          "." + BOT_KEYS.PREDICTED_ELEMENT,
           BOT_KEYS.PREDICTED_ELEMENT
         );
         lastHoveredElement.current.classList.remove(BOT_KEYS.HOVERED_ELEMENT);
@@ -108,7 +126,7 @@ function useBot() {
     return () => removeEventListener("mousemove", throttledMouseMoveHandler);
   }, []);
 
-  const reset = () => {
+  const onReset = () => {
     isElementSelected.current = null;
     const commonAncestor = document.querySelector(BOT_KEYS.COMMON_ANCESTOR);
     if (commonAncestor) {
@@ -124,6 +142,7 @@ function useBot() {
       elt.classList.remove(BOT_KEYS.SELECTED_ELEMENT);
     });
     setUserSelectedElements([]);
+    resetStep();
   };
 
   const run = () => {
@@ -131,17 +150,22 @@ function useBot() {
       elt.setAttribute(BOT_KEYS.BOT_TARGET, "true");
       elt.click();
     });
-    reset();
+    onReset();
   };
 
-  const save = () => {};
+  const onSave = () => {
+    const predictedElements = getAllPredictedElements();
+    setAllSelectedElements(predictedElements);
+    setStep(2);
+  };
 
   const toggleEditMode = () => setIsEditModeOpen(!isEditModeOpen);
 
   const handlers = {
-    reset,
+    onReset,
     run,
     toggleEditMode,
+    onSave,
   };
 
   return {
@@ -150,6 +174,7 @@ function useBot() {
     handlers,
     isEditModeOpen,
     predictedElementCount,
+    step,
   };
 }
 

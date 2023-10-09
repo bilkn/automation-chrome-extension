@@ -6,11 +6,11 @@ interface IIconButtonProps
 }
 
 function IconButton(props: IIconButtonProps) {
-  const { children, ...rest } = props;
+  const { children, className = "", ...rest } = props;
   return (
     <button
       {...rest}
-      className="flex items-center text-[#80858E] justify-center bg-gray-300 h-[36px] w-[36px] rounded-full"
+      className={`${className} flex items-center text-[#80858E] justify-center bg-gray-300 h-[36px] w-[36px] rounded-full`}
     >
       {children}
     </button>
