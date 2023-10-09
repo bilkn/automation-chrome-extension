@@ -1,12 +1,12 @@
 import { createRoot } from "react-dom/client";
-import App from "@src/pages/content/components/Demo/app";
+import App from "@root/src/pages/content/app/app";
 import refreshOnUpdate from "virtual:reload-on-update-in-view";
 import { attachTwindStyle } from "@src/shared/style/twind";
 
 refreshOnUpdate("pages/content");
 
 const root = document.createElement("div");
-root.id = "chrome-extension-boilerplate-react-vite-content-view-root";
+root.id = "browser-buddy-root";
 
 document.body.append(root);
 
