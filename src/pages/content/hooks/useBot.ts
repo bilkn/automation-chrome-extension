@@ -8,17 +8,24 @@ import { BOT_KEYS } from "../constants";
 function useBot() {
   const lastHoveredElement = React.useRef(null);
   const isElementSelected = React.useRef(null);
-  const [selectedElements, setSelectedElements] = React.useState([]);
+  const [userSelectedElements, setUserSelectedElements] = React.useState([]);
+  const [allSelectedElements, setAllSelectedElements] = React.useState([]);
   const [isEditModeOpen, setIsEditModeOpen] = React.useState(true);
-  console.log({ lastHoveredElement, isElementSelected, selectedElements });
 
+  const getPredictedElements = React.useCallback(
+    () => document.querySelectorAll(".predicted-element"),
+    [userSelectedElements]
+  );
+
+  const predictedElementCount = React.useMemo(
+    () => getPredictedElements().length,
+    [userSelectedElements, getPredictedElements]
+  );
   // TODO: Handle when the route changes
 
   const handleDocumentClickEvent = React.useCallback(
     (e) => {
       const rootContainer = document.getElementById("browser-buddy-root");
-      console.log(isEditModeOpen);
-      console.log("DOCUMENT CLICK");
       if (!isEditModeOpen) {
         return;
       } else if (
@@ -26,36 +33,33 @@ function useBot() {
         e.target.getAttribute(BOT_KEYS.BOT_TARGET)
       )
         return;
-      console.log("STOP PROPAGATION");
       isElementSelected.current = true;
       e.stopPropagation();
       e.preventDefault();
       if (!e.target.classList.contains(BOT_KEYS.PREDICTED_ELEMENT)) return;
       e.target.classList.add(BOT_KEYS.SELECTED_ELEMENT);
-      setSelectedElements((prevElements) => [...prevElements, e.target]);
+      setUserSelectedElements((prevElements) => [...prevElements, e.target]);
+      setAllSelectedElements((prevElements) => [...prevElements, e.target]);
     },
     [isEditModeOpen]
   );
 
   React.useEffect(() => {
-    const isBothElementsSelected = selectedElements.length >= 2;
+    const isBothElementsSelected = userSelectedElements.length >= 2;
     const outlinePredictedElements = (clickedElt) => {
-      console.log({ clickedElt });
       const selectorTemplate = templator.createSelectorTemplateUntilParentNode(
         clickedElt,
         commonAncestor,
         { excludedClasses: [BOT_KEYS.SELECTED_ELEMENT] }
       );
-      console.log({ selectorTemplate });
       const selector = templator.createSelectorFromTemplate(selectorTemplate);
-      console.log("selector", selector);
       classHelpers.addClassBySelector(selector, BOT_KEYS.PREDICTED_ELEMENT);
     };
 
     let commonAncestor;
     // Finds common ancestor and removes other predicted elements other than ancestor's children
     if (isBothElementsSelected) {
-      const [elt1, elt2] = selectedElements;
+      const [elt1, elt2] = userSelectedElements;
       commonAncestor = findCommonAncestor(elt1, elt2);
       commonAncestor.classList.add(BOT_KEYS.COMMON_ANCESTOR);
       const predictedElements = document.querySelectorAll(".predicted-element");
@@ -64,12 +68,8 @@ function useBot() {
         elt.classList.remove(BOT_KEYS.PREDICTED_ELEMENT)
       );
       outlinePredictedElements(elt2);
-      console.log({ commonAncestor });
     }
-    /*    document.removeEventListener("click", handleDocumentClickEvent, {
-      capture: true,
-    });
- */
+
     document.addEventListener("click", handleDocumentClickEvent, {
       capture: true,
     });
@@ -77,7 +77,7 @@ function useBot() {
       document.removeEventListener("click", handleDocumentClickEvent, {
         capture: true,
       });
-  }, [selectedElements, isEditModeOpen]);
+  }, [userSelectedElements, isEditModeOpen]);
 
   React.useEffect(() => {
     const handleMouseMove = (e) => {
@@ -100,7 +100,6 @@ function useBot() {
         e.target.classList.add(BOT_KEYS.HOVERED_ELEMENT);
       }
       lastHoveredElement.current = e.target;
-      console.log("HANDLE MOUSE MOVE");
     };
 
     const throttledMouseMoveHandler = _.throttle(handleMouseMove, 30);
@@ -119,22 +118,23 @@ function useBot() {
       lastHoveredElement.current.classList.remove(BOT_KEYS.HOVERED_ELEMENT);
     }
     lastHoveredElement.current = null;
-    if (!selectedElements.length) return;
-    selectedElements.forEach((elt) => {
+    if (!userSelectedElements.length) return;
+    userSelectedElements.forEach((elt) => {
       elt.removeAttribute(BOT_KEYS.BOT_TARGET);
       elt.classList.remove(BOT_KEYS.SELECTED_ELEMENT);
     });
-    setSelectedElements([]);
+    setUserSelectedElements([]);
   };
 
   const run = () => {
-    console.log("RUN BOT");
-    selectedElements.forEach((elt: HTMLElement) => {
+    userSelectedElements.forEach((elt: HTMLElement) => {
       elt.setAttribute(BOT_KEYS.BOT_TARGET, "true");
       elt.click();
     });
     reset();
   };
+
+  const save = () => {};
 
   const toggleEditMode = () => setIsEditModeOpen(!isEditModeOpen);
 
@@ -144,7 +144,13 @@ function useBot() {
     toggleEditMode,
   };
 
-  return { selectedElements, handlers, isEditModeOpen };
+  return {
+    allSelectedElements,
+    userSelectedElements,
+    handlers,
+    isEditModeOpen,
+    predictedElementCount,
+  };
 }
 
 export default useBot;
