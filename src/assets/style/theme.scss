@@ -5,6 +5,10 @@
 .predicted-element {
   outline: thick solid #ea945c !important;
   outline-offset: -3px !important;
+
+  &:hover {
+    cursor: pointer !important;
+  }
 }
 
 .hovered-element {
