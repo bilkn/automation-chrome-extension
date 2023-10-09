@@ -13,6 +13,31 @@ const createSelectorTemplate = (node, count) => {
   return parentSelectors;
 };
 
+const createSelectorTemplateUntilParentNode = (node, untilNode, options) => {
+  // Added to prevent infinite loop
+  const MAX_LIMIT = 1000;
+  let currentNode = node;
+  const { excludedClasses = [] } = options;
+  const parentSelectors = [];
+  for (let i = 0; i < MAX_LIMIT; i++) {
+    if (!currentNode) break;
+    const className = Array.from(currentNode.classList)
+      .filter((subClassName) => !excludedClasses.includes(subClassName))
+      .join(".");
+    parentSelectors.push({
+      // TODO: Add CSS Escape polyfill
+      className,
+      tagName: currentNode.tagName,
+    });
+    if (currentNode.isSameNode(untilNode)) {
+      break;
+    }
+
+    currentNode = currentNode.parentElement;
+  }
+  return parentSelectors;
+};
+
 const createSelectorFromTemplate = (template) => {
   return template.reverse().reduce((selector, cur) => {
     let str = "";
@@ -26,4 +51,8 @@ const createSelectorFromTemplate = (template) => {
   }, "");
 };
 
-export default { createSelectorFromTemplate, createSelectorTemplate };
+export default {
+  createSelectorFromTemplate,
+  createSelectorTemplate,
+  createSelectorTemplateUntilParentNode,
+};

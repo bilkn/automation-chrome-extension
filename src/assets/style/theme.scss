@@ -12,8 +12,7 @@
   outline-offset: -3px !important;
 }
 
-.bot-container {
-  bottom: 0;
-  left: 0;
-  transform: translateX(-50%);
+.selected-element {
+  outline: thick solid greenyellow !important;
+  outline-offset: -3px !important;
 }

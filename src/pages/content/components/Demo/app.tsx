@@ -26,7 +26,7 @@ export default function App() {
 
   return (
     <div
-      className="bot-container text-lime-400 fixed bottom-0 p-10 bg-white min-w-[70%] shadow-lg"
+      className="text-lime-400 fixed bottom-0 p-10 bg-white min-w-[70%] shadow-lg"
       style={{ zIndex: 1000000, left: "50%", transform: "translateX(-50%)" }}
     >
       {renderStep[step]}
