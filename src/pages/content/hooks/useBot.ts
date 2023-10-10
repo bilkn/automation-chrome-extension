@@ -148,7 +148,10 @@ function useBot() {
   const toggleEditMode = () => setIsEditModeOpen(!isEditModeOpen);
 
   const onClickAllElements = () => {
-    userSelectedElements.forEach((elt: HTMLElement) => {
+    const autoSelectedElements = Array.from(
+      document.querySelectorAll(".predicted-element")
+    );
+    autoSelectedElements.forEach((elt: HTMLElement) => {
       elt.setAttribute(BOT_KEYS.BOT_TARGET, "true");
       elt.click();
     });
